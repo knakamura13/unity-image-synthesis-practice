@@ -40,6 +40,7 @@
      <Compile Include="Assets\ImageSynthesis\ExampleUI.cs" />
      <Compile Include="Assets\ImageSynthesis\ImageSynthesis.cs" />
      <Compile Include="Assets\Scripts\SceneController.cs" />
+     <Compile Include="Assets\Scripts\ShapePool.cs" />
      <None Include="Assets\ImageSynthesis\Shaders\UberReplacement.shader" />
      <None Include="Assets\ImageSynthesis\Shaders\OpticalFlow.shader" />
     <Reference Include="UnityEngine">

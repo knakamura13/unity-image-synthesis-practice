@@ -156,7 +156,7 @@ public class ImageSynthesis : MonoBehaviour {
         }
     }
 
-    public void Save (string filename, int width = -1, int height = -1, string path = "") {
+    public void Save (string filename, int width = -1, int height = -1, string path = "", int specificPass = -1) {
         if (width <= 0 || height <= 0) {
             width = Screen.width;
             height = Screen.height;
@@ -171,17 +171,24 @@ public class ImageSynthesis : MonoBehaviour {
 
         // execute as coroutine to wait for the EndOfFrame before starting capture
         StartCoroutine (
-            WaitForEndOfFrameAndSave (pathWithoutExtension, filenameExtension, width, height));
+            WaitForEndOfFrameAndSave (pathWithoutExtension, filenameExtension, width, height, specificPass));
     }
 
-    private IEnumerator WaitForEndOfFrameAndSave (string filenameWithoutExtension, string filenameExtension, int width, int height) {
+    private IEnumerator WaitForEndOfFrameAndSave (string filenameWithoutExtension, string filenameExtension, int width, int height, int specificPass) {
         yield return new WaitForEndOfFrame ();
-        Save (filenameWithoutExtension, filenameExtension, width, height);
+        Save (filenameWithoutExtension, filenameExtension, width, height, specificPass);
     }
 
-    private void Save (string filenameWithoutExtension, string filenameExtension, int width, int height) {
-        foreach (var pass in capturePasses)
+    private void Save (string filenameWithoutExtension, string filenameExtension, int width, int height, int specificPass) {
+        if (specificPass == -1) {
+            foreach (var pass in capturePasses)
+                Save (pass.camera, filenameWithoutExtension + pass.name + filenameExtension, width, height, pass.supportsAntialiasing, pass.needsRescale);
+        } else {
+            var pass = capturePasses[0];
             Save (pass.camera, filenameWithoutExtension + pass.name + filenameExtension, width, height, pass.supportsAntialiasing, pass.needsRescale);
+            pass = capturePasses[specificPass];
+            Save (pass.camera, filenameWithoutExtension + pass.name + filenameExtension, width, height, pass.supportsAntialiasing, pass.needsRescale);
+        }
     }
 
     private void Save (Camera cam, string filename, int width, int height, bool supportsAntialiasing, bool needsRescale) {
