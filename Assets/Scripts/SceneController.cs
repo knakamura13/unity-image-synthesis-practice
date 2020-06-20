@@ -4,16 +4,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SceneController: MonoBehaviour {
+    /*********************
+     * Public properties *
+     *********************/
+
     public ImageSynthesis synth;
     public GameObject[] prefabs;
     public int minObjects;
     public int maxObjects;
+    public int numTrainingImages;
+    public int numValidationImages;
+
+
+    /*********************
+     * Private properties *
+     *********************/
 
     private ShapePool pool;
     private int frameCount = 0;
+    private int savedImagesCount = 0;
+
 
     /********************
-     * Built in methods *
+     * Built-in methods *
      ********************/
 
     void Start () {
@@ -21,15 +34,29 @@ public class SceneController: MonoBehaviour {
     }
 
     void Update() {
-        if (frameCount % 30 == 0 ) {
-            GenerateRandomShapes();
-        }
-        frameCount++;
+        if (savedImagesCount < numTrainingImages + numValidationImages) {
+            frameCount++;
 
-        string dir = "/Users/kjnakamura/local-documents/local-development/ml-synth-captures";
-        string fileName = $"image_{frameCount.ToString().PadLeft(5, '0')}";
-        synth.Save(fileName, 512, 512, dir, 2);
+            // Only generate shapes every 30 frames (1–2 times per second)
+            if (frameCount % 30 == 0 ) {
+                GenerateRandomShapes();
+                Debug.Log($"Frame #: {frameCount}");
+
+                // Only save 6 images per iteration
+                if (frameCount % 5 == 0) {
+                    if (savedImagesCount < numTrainingImages) {
+                        SaveImages(savedImagesCount, "train");
+                    } else if (savedImagesCount < numTrainingImages + numValidationImages) {
+                        int valFrameCount = savedImagesCount - numTrainingImages;
+                        SaveImages(valFrameCount, "validate");
+                    }
+                }
+            }
+        } else {
+            // Program has finished
+        }
     }
+
 
     /******************
      * Custom methods *
@@ -77,5 +104,12 @@ public class SceneController: MonoBehaviour {
         }
 
         synth.OnSceneChange();
+    }
+
+    void SaveImages(int count, string relativePath) {
+        string dir = $"/Users/kjnakamura/local-documents/local-development/ml-synth-captures/{relativePath}";
+        string fileName = $"image_{count.ToString().PadLeft(5, '0')}";
+        synth.Save(fileName, 512, 512, dir, 2);
+        savedImagesCount++;
     }
 }
