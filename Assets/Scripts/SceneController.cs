@@ -13,6 +13,8 @@ public class SceneController: MonoBehaviour {
     public int maxObjects;
     public int numTrainingImages;
     public int numValidationImages;
+    public bool useGrayScale = false;
+    public bool saveImages = false;
 
 
     /*********************
@@ -42,7 +44,7 @@ public class SceneController: MonoBehaviour {
                 Debug.Log($"Frame #: {frameCount}");
 
                 // Only save 6 images per iteration
-                if (frameCount % 5 == 0) {
+                if (saveImages && frameCount % 5 == 0) {
                     if (savedImagesCount < numTrainingImages) {
                         SaveImages(savedImagesCount, "train", 2);
                     } else if (savedImagesCount < numTrainingImages + numValidationImages) {
@@ -52,7 +54,8 @@ public class SceneController: MonoBehaviour {
                 }
             }
         } else {
-            // Program has finished
+            // Exit play mode
+            StopProgram();
         }
     }
 
@@ -102,13 +105,14 @@ public class SceneController: MonoBehaviour {
             newObj.GetComponent<Renderer>().material.color = newColor;
         }
 
-        synth.OnSceneChange();
+        // Redraw the image for each hidden camera
+        synth.OnSceneChange(useGrayScale);
     }
 
     /// <Summary>
-    ///     Saves in-game screenshots.
-    ///     Uses Unity's ImageSynthesis library to save a screenshot from the main camera,
-    ///     plus the hidden cameras which each contain a separate type of labeled data.
+    /// Saves in-game screenshots.
+    /// Uses Unity's `ImageSynthesis` library to save a screenshot from the main camera,
+    /// plus the hidden cameras which each contain a separate type of labeled data.
     /// </Summary>
     void SaveImages(int count, string relativePath, int specificPass = -1) {
         const int imageSize = 512;
@@ -118,5 +122,12 @@ public class SceneController: MonoBehaviour {
 
         synth.Save(fileName, imageSize, imageSize, dir, specificPass);
         savedImagesCount++;
+    }
+
+    /// Tells unity to exit `play` mode.
+    void StopProgram() {
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #endif
     }
 }

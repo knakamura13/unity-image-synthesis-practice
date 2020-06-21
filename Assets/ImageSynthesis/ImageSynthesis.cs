@@ -142,7 +142,7 @@ public class ImageSynthesis : MonoBehaviour {
         SetupCameraWithPostShader (capturePasses[5].camera, opticalFlowMaterial, DepthTextureMode.Depth | DepthTextureMode.MotionVectors);
     }
 
-    public void OnSceneChange () {
+    public void OnSceneChange (bool grayScale = false) {
         var renderers = Object.FindObjectsOfType<Renderer> ();
         var mpb = new MaterialPropertyBlock ();
         foreach (var r in renderers) {
@@ -151,7 +151,7 @@ public class ImageSynthesis : MonoBehaviour {
             var tag = r.gameObject.tag;
 
             mpb.SetColor ("_ObjectColor", ColorEncoding.EncodeIDAsColor (id));
-            mpb.SetColor ("_CategoryColor", ColorEncoding.EncodeLayerAsColor (layer));
+            mpb.SetColor ("_CategoryColor", ColorEncoding.EncodeLayerAsColor (layer, grayScale));
             r.SetPropertyBlock (mpb);
         }
     }

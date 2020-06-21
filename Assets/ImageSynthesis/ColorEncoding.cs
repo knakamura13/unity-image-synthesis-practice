@@ -42,7 +42,12 @@ public class ColorEncoding {
         return new Color32 (r, g, b, a);
     }
 
-    public static Color EncodeLayerAsColor (int layer) {
+    public static Color EncodeLayerAsColor (int layer, bool grayScale = false) {
+        if (grayScale) {
+            float intensity = layer / 255.0f;
+            return new Color (intensity, intensity, intensity, 1);
+        }
+
         // Following value must be in the range (0.5 .. 1.0)
         // in order to avoid color overlaps when using 'divider' in this func
         var z = .7f;
