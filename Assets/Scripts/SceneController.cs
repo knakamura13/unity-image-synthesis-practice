@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,10 +44,10 @@ public class SceneController: MonoBehaviour {
                 // Only save 6 images per iteration
                 if (frameCount % 5 == 0) {
                     if (savedImagesCount < numTrainingImages) {
-                        SaveImages(savedImagesCount, "train");
+                        SaveImages(savedImagesCount, "train", 2);
                     } else if (savedImagesCount < numTrainingImages + numValidationImages) {
                         int valFrameCount = savedImagesCount - numTrainingImages;
-                        SaveImages(valFrameCount, "validate");
+                        SaveImages(valFrameCount, "validate", 2);
                     }
                 }
             }
@@ -106,10 +105,18 @@ public class SceneController: MonoBehaviour {
         synth.OnSceneChange();
     }
 
-    void SaveImages(int count, string relativePath) {
+    /// <Summary>
+    ///     Saves in-game screenshots.
+    ///     Uses Unity's ImageSynthesis library to save a screenshot from the main camera,
+    ///     plus the hidden cameras which each contain a separate type of labeled data.
+    /// </Summary>
+    void SaveImages(int count, string relativePath, int specificPass = -1) {
+        const int imageSize = 512;
+
         string dir = $"/Users/kjnakamura/local-documents/local-development/ml-synth-captures/{relativePath}";
         string fileName = $"image_{count.ToString().PadLeft(5, '0')}";
-        synth.Save(fileName, 512, 512, dir, 2);
+
+        synth.Save(fileName, imageSize, imageSize, dir, specificPass);
         savedImagesCount++;
     }
 }
